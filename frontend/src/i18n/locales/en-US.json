@@ -1,0 +1,18 @@
+{
+  "occupation": {
+    "aiUsageRate": "AI Usage Rate",
+    "taskDistribution": "Task Distribution",
+    "popularTasks": "Popular AI Tasks",
+    "task": "Task",
+    "taskCn": "Task (Chinese)",
+    "percentage": "Percentage",
+    "aiScore": "AI Automation Score",
+    "searchPlaceholder": "Enter keyword to search occupations...",
+    "noResults": "No matching occupations found",
+    "backToHome": "Back to Home"
+  },
+  "common": {
+    "search": "Search",
+    "loading": "Loading..."
+  }
+} 

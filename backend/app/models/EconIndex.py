@@ -59,7 +59,10 @@ def get_title_percentage(title: str, language: str) -> dict:
         # 返回任务对应的百分比
         task_percentage_dict = {}
         for task in task_info:
-            task_percentage_dict[task.task] = task.percentage
+            if language == 'en':
+                task_percentage_dict[task.task] = task.percentage
+            else:
+                task_percentage_dict[task.task_cn] = task.percentage
 
         return task_percentage_dict
     except Exception as e:
@@ -84,11 +87,11 @@ def search_titles_by_keyword(keyword: str, language: str) -> list:
             if language == 'en':
                 # 英文标题搜索
                 titles = select(e.title for e in EconIndex 
-                            if e.title.lower().like(f'%{keyword.lower()}%'))
+                            if keyword in e.title)
             else:
                 # 中文标题搜索
                 titles = select(e.title_cn for e in EconIndex 
-                            if e.title_cn.like(f'%{keyword}%'))
+                            if keyword in e.title_cn)
             
         return list(titles)
     except Exception as e:
