@@ -8,11 +8,11 @@
         class="search-input"
         @input="handleSearchInput"
       >
-        <template #append>
+        <!-- <template #append>
           <el-button type="primary" @click="handleSearch">
             {{ t('common.search') }}
           </el-button>
-        </template>
+        </template> -->
       </el-input>
 
       <!-- 搜索结果下拉列表 -->
@@ -81,7 +81,7 @@ export default {
           show: false
         },
         grid: {
-          left: '5%',
+          left: '3%',
           right: '10%',
           bottom: '5%',
           top: '5%',
@@ -140,7 +140,7 @@ export default {
             show: true,
             color: '#666',
             fontSize: 14,
-            width: 250,
+            width: 350,
             overflow: 'truncate'
           }
         },
@@ -353,7 +353,7 @@ export default {
   .card-container {
     background-color: var(--el-bg-color-overlay);
     border-radius: 8px;
-    padding: 24px;
+    padding: 0 24px 24px 0;
     margin-bottom: 24px;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 
