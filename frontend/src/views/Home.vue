@@ -37,50 +37,12 @@
       </div>
     </div>
 
-    <!-- GDP增长率卡片 -->
+    <!-- 职业任务分布卡片 -->
     <div class="card-container">
-      <div class="chart-title">GDP增长率</div>
-      <div class="chart-subtitle">按季度统计的国内生产总值增长率</div>
-      <div class="chart-container" ref="gdpChartRef"></div>
+      <div class="chart-container" ref="tasksBarChartRef"></div>
     </div>
 
-    <!-- 数据展示区域 -->
-    <div class="data-section" v-loading="loading">
-      <!-- AI 使用率排行榜 -->
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('occupation.aiUsageRate') }}</span>
-          </div>
-        </template>
-        <div class="chart-container" ref="aiUsageChartRef"></div>
-      </el-card>
-
-      <!-- 任务分布图表 -->
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('occupation.taskDistribution') }}</span>
-          </div>
-        </template>
-        <div class="chart-container" ref="taskDistributionChartRef"></div>
-      </el-card>
-
-      <!-- 热门 AI 任务列表 -->
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('occupation.popularTasks') }}</span>
-          </div>
-        </template>
-        <div class="table-container">
-          <el-table :data="popularTasks" style="width: 100%">
-            <el-table-column prop="task" :label="t('occupation.task')" />
-            <el-table-column prop="percentage" :label="t('occupation.percentage')" />
-          </el-table>
-        </div>
-      </el-card>
-    </div>
+    <!-- 数据展示区域已移除 -->
   </div>
 </template>
 
@@ -105,97 +67,70 @@ export default {
     const showSearchResults = ref(false)
     
     // echarts 实例
-    let gdpChart = null
-    let aiUsageChart = null
-    let taskDistributionChart = null
+    let tasksBarChart = null
     
-    const gdpChartRef = ref(null)
-    const aiUsageChartRef = ref(null)
-    const taskDistributionChartRef = ref(null)
+    const tasksBarChartRef = ref(null)
 
     // 初始化图表
     const initCharts = () => {
-      // GDP增长率图表
-      gdpChart = echarts.init(gdpChartRef.value)
-      gdpChart.setOption({
+      // 职业任务分布横向柱状图
+      tasksBarChart = echarts.init(tasksBarChartRef.value)
+      tasksBarChart.setOption({
         backgroundColor: 'transparent',
-        title: {
-          text: '任务分布',
-          left: 'center',
-          top: 10,
-          textStyle: {
-            color: '#ffffff',
-            fontSize: 18,
-            fontWeight: 'bold'
-          },
-          subtext: '按任务重要程度排序',
-          subtextStyle: {
-            color: '#d1d1d1',
-            fontSize: 14
-          }
-        },
         legend: {
           show: false
         },
         grid: {
-          left: '30%',
+          left: '5%',
           right: '10%',
           bottom: '5%',
-          top: '20%',
-          containLabel: true // 确保标签包含在内
+          top: '5%',
+          containLabel: true
         },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
             type: 'shadow'
-          }
+          },
+          formatter: '{b}: {c}%'
         },
         xAxis: {
           type: 'value',
-          position: 'top',
           name: '占比',
           nameLocation: 'end',
           nameTextStyle: {
-            color: '#ffffff',
-            fontSize: 14,
-            padding: [5, 0, 0, 0]
-          },
-          max: function(value) {
-            return Math.ceil(value.max * 1.2);
+            color: '#666',
+            fontSize: 14
           },
           axisLine: {
             show: true,
             lineStyle: {
-              color: '#ffffff',
-              width: 2
+              color: '#ccc'
             }
           },
           axisTick: {
-            show: true,
-            length: 5,
-            lineStyle: {
-              color: '#ffffff'
-            }
+            show: true
           },
           splitLine: {
-            show: false
+            show: true,
+            lineStyle: {
+              color: '#eee'
+            }
           },
           axisLabel: {
             show: true,
-            color: '#ffffff',
-            fontSize: 12,
+            color: '#666',
             formatter: '{value}%'
           }
         },
         yAxis: {
           type: 'category',
-          inverse: true, // 反转Y轴，使最大值在顶部
           data: [],
+          inverse: true,
           axisLine: {
             show: true,
             lineStyle: {
-              color: '#ffffff',
-              width: 2
+              color: '#ccc'
             }
           },
           axisTick: {
@@ -203,22 +138,10 @@ export default {
           },
           axisLabel: {
             show: true,
-            inside: false,
-            color: '#ffffff',
+            color: '#666',
             fontSize: 14,
-            fontWeight: 'bold',
-            padding: [0, 20, 0, 0],
-            align: 'left',
-            verticalAlign: 'middle',
-            lineHeight: 20,
-            rich: {
-              value: {
-                color: '#ffffff',
-                fontSize: 14,
-                fontWeight: 'bold',
-                lineHeight: 20
-              }
-            }
+            width: 250,
+            overflow: 'truncate'
           }
         },
         series: [
@@ -229,112 +152,21 @@ export default {
             data: [],
             itemStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                { offset: 0, color: '#39a0ff' },
-                { offset: 1, color: '#4ed8da' }
+                { offset: 0, color: '#4facfe' },
+                { offset: 1, color: '#00f2fe' }
               ]),
-              borderRadius: [0, 5, 5, 0]
+              borderRadius: [0, 4, 4, 0]
             },
             label: {
               show: true,
               position: 'right',
               formatter: '{c}%',
-              color: '#ffffff',
-              fontSize: 14,
-              fontWeight: 'bold',
-              distance: 10
+              color: '#666',
+              fontSize: 14
             }
           }
         ]
       });
-
-      // AI 使用率图表
-      aiUsageChart = echarts.init(aiUsageChartRef.value)
-      aiUsageChart.setOption({
-        backgroundColor: 'transparent',
-        title: {
-          text: t('occupation.aiUsageRate'),
-          textStyle: {
-            color: '#fff'
-          }
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        xAxis: {
-          type: 'category',
-          data: ['职业A', '职业B', '职业C', '职业D', '职业E'],
-          axisLine: {
-            lineStyle: {
-              color: 'rgba(255, 255, 255, 0.3)'
-            }
-          },
-          axisLabel: {
-            color: 'rgba(255, 255, 255, 0.7)'
-          }
-        },
-        yAxis: {
-          type: 'value',
-          axisLabel: {
-            formatter: '{value}%',
-            color: 'rgba(255, 255, 255, 0.7)'
-          },
-          axisLine: {
-            lineStyle: {
-              color: 'rgba(255, 255, 255, 0.3)'
-            }
-          },
-          splitLine: {
-            lineStyle: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            }
-          }
-        },
-        series: [{
-          data: [80, 70, 60, 50, 40],
-          type: 'bar',
-          itemStyle: {
-            color: '#39a0ff'
-          }
-        }]
-      })
-
-      // 任务分布图表
-      taskDistributionChart = echarts.init(taskDistributionChartRef.value)
-      taskDistributionChart.setOption({
-        backgroundColor: 'transparent',
-        title: {
-          text: t('occupation.taskDistribution'),
-          textStyle: {
-            color: '#fff'
-          }
-        },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{b}: {c}%'
-        },
-        series: [{
-          type: 'pie',
-          radius: '50%',
-          itemStyle: {
-            color: function(params) {
-              const colorList = ['#39a0ff', '#4ed8da', '#25c2e0', '#38a1de', '#505fdf'];
-              return colorList[params.dataIndex % colorList.length];
-            }
-          },
-          label: {
-            color: '#fff',
-            formatter: '{b}\n{c}%'
-          },
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          },
-          data: []
-        }]
-      })
     }
 
     // 防抖处理搜索输入
@@ -377,27 +209,6 @@ export default {
       }
     }
 
-    // 修改卡片标题
-    const updateChartTitle = (title) => {
-      if (gdpChart) {
-        gdpChart.setOption({
-          title: {
-            text: title + '的任务分布',
-            subtext: '按任务重要程度排序',
-            left: 'center',
-            textStyle: {
-              color: 'rgba(255, 255, 255, 0.7)',
-              fontSize: 16
-            },
-            subtextStyle: {
-              color: 'rgba(255, 255, 255, 0.5)',
-              fontSize: 12
-            }
-          }
-        });
-      }
-    }
-
     // 选择职业
     const selectOccupation = async (title) => {
       searchQuery.value = title
@@ -411,30 +222,14 @@ export default {
         const response = await occupationApi.getTasks(title, language)
         popularTasks.value = response.data.tasks
 
-        // 更新任务分布图表
-        if (taskDistributionChart) {
-          taskDistributionChart.setOption({
-            series: [{
-              data: popularTasks.value.map(task => ({
-                value: task.percentage,
-                name: task.task
-              }))
-            }]
-          })
-        }
-
-        // 更新任务分布图表（原GDP图表）
-        if (gdpChart) {
+        // 更新任务分布柱状图
+        if (tasksBarChart) {
           const tasks = response.data.tasks
           // 按百分比降序排序
           const sortedTasks = [...tasks].sort((a, b) => b.percentage - a.percentage)
           
-          // 更新图表标题和数据
-          gdpChart.setOption({
-            title: {
-              text: title + '的任务分布',
-              subtext: '按任务重要程度排序'
-            },
+          // 更新图表数据
+          tasksBarChart.setOption({
             yAxis: {
               data: sortedTasks.map(t => t.task)
             },
@@ -445,7 +240,7 @@ export default {
           
           // 延迟调整大小，确保渲染完成
           setTimeout(() => {
-            gdpChart.resize();
+            tasksBarChart.resize();
           }, 200);
         }
       } catch (error) {
@@ -465,29 +260,19 @@ export default {
 
     // 监听窗口大小变化
     const handleResize = () => {
-      gdpChart?.resize()
-      aiUsageChart?.resize()
-      taskDistributionChart?.resize()
+      tasksBarChart?.resize()
     }
 
     onMounted(() => {
       initCharts()
       window.addEventListener('resize', handleResize)
       document.addEventListener('click', handleClickOutside)
-      
-      // 修改GDP卡片的标题和说明
-      const chartTitleEl = document.querySelector('.card-container .chart-title')
-      const chartSubtitleEl = document.querySelector('.card-container .chart-subtitle')
-      if (chartTitleEl) chartTitleEl.textContent = '职业任务分布'
-      if (chartSubtitleEl) chartSubtitleEl.textContent = '选择职业后显示对应的任务分布'
     })
 
     onUnmounted(() => {
       window.removeEventListener('resize', handleResize)
       document.removeEventListener('click', handleClickOutside)
-      gdpChart?.dispose()
-      aiUsageChart?.dispose()
-      taskDistributionChart?.dispose()
+      tasksBarChart?.dispose()
     })
 
     return {
@@ -497,9 +282,7 @@ export default {
       popularTasks,
       searchResults,
       showSearchResults,
-      gdpChartRef,
-      aiUsageChartRef,
-      taskDistributionChartRef,
+      tasksBarChartRef,
       handleSearchInput,
       handleSearch,
       selectOccupation
@@ -573,21 +356,6 @@ export default {
     padding: 24px;
     margin-bottom: 24px;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-
-    .chart-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-      margin-bottom: 8px;
-      text-align: center;
-    }
-
-    .chart-subtitle {
-      font-size: 14px;
-      color: var(--el-text-color-secondary);
-      margin-bottom: 24px;
-      text-align: center;
-    }
 
     .chart-container {
       height: 380px;
