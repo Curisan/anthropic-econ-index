@@ -1,0 +1,40 @@
+{
+  "occupation": {
+    "aiUsageRate": "AI使用率排行",
+    "taskDistribution": "任务分布",
+    "popularTasks": "热门AI任务",
+    "task": "任务",
+    "taskCn": "任务(中文)",
+    "percentage": "占比",
+    "aiScore": "AI自动化分数",
+    "searchPlaceholder": "输入关键词搜索职业...",
+    "noResults": "没有找到匹配的职业",
+    "backToHome": "返回首页"
+  },
+  "common": {
+    "search": "搜索",
+    "loading": "加载中...",
+    "submit": "提交",
+    "cancel": "取消"
+  },
+  "feedback": {
+    "title": "提供反馈",
+    "button": "反馈",
+    "type": "类型",
+    "content": "内容",
+    "success": "感谢您的反馈！",
+    "error": "提交失败",
+    "unknownError": "未知错误",
+    "validation": "请填写类型和内容",
+    "suggestionType": "建议",
+    "problemType": "问题",
+    "otherType": "其他"
+  },
+  "app": {
+    "title": "职业自动化指数"
+  },
+  "language": {
+    "english": "English",
+    "chinese": "中文"
+  }
+} 

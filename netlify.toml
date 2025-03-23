@@ -6,7 +6,7 @@
 # 重定向规则
 [[redirects]]
   from = "/api/*"
-  to = "http://47.115.227.145:5000/:splat"
+  to = "http://47.115.227.145:5010/:splat"
   status = 200
   force = true
   headers = {X-From = "Netlify"}

@@ -6,59 +6,43 @@
         v-model="searchQuery"
         :placeholder="t('occupation.searchPlaceholder')"
         class="search-input"
+        @input="handleSearchInput"
       >
-        <template #append>
+        <!-- <template #append>
           <el-button type="primary" @click="handleSearch">
             {{ t('common.search') }}
           </el-button>
-        </template>
+        </template> -->
       </el-input>
+
+      <!-- 搜索结果下拉列表 -->
+      <div v-if="showSearchResults && searchResults.length > 0" class="search-results">
+        <ul>
+          <li 
+            v-for="title in searchResults" 
+            :key="title"
+            @click="selectOccupation(title)"
+          >
+            <div class="search-item">
+              <i class="el-icon-search"></i>
+              <span class="search-text">{{ title }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      
+      <!-- 无搜索结果提示 -->
+      <div v-if="showSearchResults && searchResults.length === 0 && searchQuery" class="no-results">
+        {{ t('occupation.noResults') }}
+      </div>
     </div>
 
-    <!-- GDP增长率卡片 -->
+    <!-- 职业任务分布卡片 -->
     <div class="card-container">
-      <div class="chart-title">GDP增长率</div>
-      <div class="chart-subtitle">按季度统计的国内生产总值增长率</div>
-      <div class="chart-container" ref="gdpChartRef"></div>
+      <div class="chart-container" ref="tasksBarChartRef"></div>
     </div>
 
-    <!-- 数据展示区域 -->
-    <div class="data-section" v-loading="loading">
-      <!-- AI 使用率排行榜 -->
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('occupation.aiUsageRate') }}</span>
-          </div>
-        </template>
-        <div class="chart-container" ref="aiUsageChartRef"></div>
-      </el-card>
-
-      <!-- 任务分布图表 -->
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('occupation.taskDistribution') }}</span>
-          </div>
-        </template>
-        <div class="chart-container" ref="taskDistributionChartRef"></div>
-      </el-card>
-
-      <!-- 热门 AI 任务列表 -->
-      <el-card class="chart-card">
-        <template #header>
-          <div class="card-header">
-            <span>{{ t('occupation.popularTasks') }}</span>
-          </div>
-        </template>
-        <div class="table-container">
-          <el-table :data="popularTasks" style="width: 100%">
-            <el-table-column prop="task" :label="t('occupation.task')" />
-            <el-table-column prop="percentage" :label="t('occupation.percentage')" />
-          </el-table>
-        </div>
-      </el-card>
-    </div>
+    <!-- 数据展示区域已移除 -->
   </div>
 </template>
 
@@ -67,6 +51,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
 // import { useI18n } from 'vue-i18n'
 import i18n from '../i18n'
+import { occupationApi } from '../api'
+import debounce from 'lodash/debounce'
 
 export default {
   name: 'Home',
@@ -77,188 +63,145 @@ export default {
     const searchQuery = ref('')
     const loading = ref(false)
     const popularTasks = ref([])
+    const searchResults = ref([])
+    const showSearchResults = ref(false)
     
     // echarts 实例
-    let gdpChart = null
-    let aiUsageChart = null
-    let taskDistributionChart = null
+    let tasksBarChart = null
     
-    const gdpChartRef = ref(null)
-    const aiUsageChartRef = ref(null)
-    const taskDistributionChartRef = ref(null)
+    const tasksBarChartRef = ref(null)
 
     // 初始化图表
     const initCharts = () => {
-      // GDP增长率图表
-      gdpChart = echarts.init(gdpChartRef.value)
-      gdpChart.setOption({
+      // 职业任务分布横向柱状图
+      tasksBarChart = echarts.init(tasksBarChartRef.value)
+      tasksBarChart.setOption({
         backgroundColor: 'transparent',
+        legend: {
+          show: false
+        },
         grid: {
           left: '3%',
-          right: '4%',
-          bottom: '3%',
+          right: '10%',
+          bottom: '5%',
+          top: '5%',
           containLabel: true
         },
         tooltip: {
           trigger: 'axis',
           axisPointer: {
             type: 'shadow'
-          }
+          },
+          formatter: '{b}: {c}%'
         },
         xAxis: {
-          type: 'category',
-          data: ['2023Q1', '2023Q2', '2023Q3', '2023Q4', '2024Q1', '2024Q2'],
+          type: 'value',
+          name: '占比',
+          nameLocation: 'end',
+          nameTextStyle: {
+            color: '#666',
+            fontSize: 14
+          },
           axisLine: {
+            show: true,
             lineStyle: {
-              color: 'rgba(255, 255, 255, 0.3)'
+              color: '#ccc'
+            }
+          },
+          axisTick: {
+            show: true
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              color: '#eee'
             }
           },
           axisLabel: {
-            color: 'rgba(255, 255, 255, 0.7)'
+            show: true,
+            color: '#666',
+            formatter: '{value}%'
           }
         },
         yAxis: {
-          type: 'value',
-          name: 'GDP增长率 (%)',
-          nameTextStyle: {
-            color: 'rgba(255, 255, 255, 0.7)'
-          },
+          type: 'category',
+          data: [],
+          inverse: true,
           axisLine: {
+            show: true,
             lineStyle: {
-              color: 'rgba(255, 255, 255, 0.3)'
+              color: '#ccc'
             }
           },
-          splitLine: {
-            lineStyle: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            }
+          axisTick: {
+            show: false
           },
           axisLabel: {
-            color: 'rgba(255, 255, 255, 0.7)'
+            show: true,
+            color: '#666',
+            fontSize: 14,
+            width: 350,
+            overflow: 'truncate'
           }
         },
         series: [
           {
-            name: 'GDP增长率',
+            name: '任务占比',
             type: 'bar',
-            barWidth: '40%',
-            data: [4.4, 6.3, 4.9, 5.2, 5.3, 5.5],
+            barWidth: '60%',
+            data: [],
             itemStyle: {
-              color: '#39a0ff'
-            }
-          },
-          {
-            name: 'GDP同比增长',
-            type: 'line',
-            data: [0.7, 1.2, -0.3, 0.4, 0.8, -0.5],
-            symbolSize: 6,
-            lineStyle: {
-              color: '#ffde33',
-              width: 2
+              color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                { offset: 0, color: '#4facfe' },
+                { offset: 1, color: '#00f2fe' }
+              ]),
+              borderRadius: [0, 4, 4, 0]
             },
-            itemStyle: {
-              color: '#ffde33'
+            label: {
+              show: true,
+              position: 'right',
+              formatter: '{c}%',
+              color: '#666',
+              fontSize: 14
             }
           }
         ]
       });
-
-      // AI 使用率图表
-      aiUsageChart = echarts.init(aiUsageChartRef.value)
-      aiUsageChart.setOption({
-        backgroundColor: 'transparent',
-        title: {
-          text: t('occupation.aiUsageRate'),
-          textStyle: {
-            color: '#fff'
-          }
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        xAxis: {
-          type: 'category',
-          data: ['职业A', '职业B', '职业C', '职业D', '职业E'],
-          axisLine: {
-            lineStyle: {
-              color: 'rgba(255, 255, 255, 0.3)'
-            }
-          },
-          axisLabel: {
-            color: 'rgba(255, 255, 255, 0.7)'
-          }
-        },
-        yAxis: {
-          type: 'value',
-          axisLabel: {
-            formatter: '{value}%',
-            color: 'rgba(255, 255, 255, 0.7)'
-          },
-          axisLine: {
-            lineStyle: {
-              color: 'rgba(255, 255, 255, 0.3)'
-            }
-          },
-          splitLine: {
-            lineStyle: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            }
-          }
-        },
-        series: [{
-          data: [80, 70, 60, 50, 40],
-          type: 'bar',
-          itemStyle: {
-            color: '#39a0ff'
-          }
-        }]
-      })
-
-      // 任务分布图表
-      taskDistributionChart = echarts.init(taskDistributionChartRef.value)
-      taskDistributionChart.setOption({
-        backgroundColor: 'transparent',
-        title: {
-          text: t('occupation.taskDistribution'),
-          textStyle: {
-            color: '#fff'
-          }
-        },
-        tooltip: {
-          trigger: 'item'
-        },
-        series: [{
-          type: 'pie',
-          radius: '50%',
-          itemStyle: {
-            color: function(params) {
-              const colorList = ['#39a0ff', '#4ed8da', '#25c2e0', '#38a1de', '#505fdf'];
-              return colorList[params.dataIndex % colorList.length];
-            }
-          },
-          label: {
-            color: '#fff'
-          },
-          data: [
-            { value: 35, name: '任务A' },
-            { value: 25, name: '任务B' },
-            { value: 20, name: '任务C' },
-            { value: 15, name: '任务D' },
-            { value: 5, name: '任务E' }
-          ]
-        }]
-      })
     }
 
-    // 处理搜索
+    // 防抖处理搜索输入
+    const handleSearchInput = debounce(async () => {
+      if (searchQuery.value.length < 2) {
+        searchResults.value = []
+        showSearchResults.value = false
+        return
+      }
+      
+      try {
+        // 判断搜索关键词是否包含英文字符
+        const hasEnglish = /[a-zA-Z]/.test(searchQuery.value)
+        const language = hasEnglish ? 'en' : 'cn'
+        const response = await occupationApi.search(searchQuery.value, language)
+        searchResults.value = response.data.occupations
+        showSearchResults.value = true
+      } catch (error) {
+        console.error('搜索失败:', error)
+        searchResults.value = []
+      }
+    }, 300)
+    
+    // 处理搜索按钮点击
     const handleSearch = async () => {
       if (!searchQuery.value) return
       
       loading.value = true
       try {
-        // TODO: 实现搜索逻辑
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        // 更新图表数据
+        // 判断搜索关键词是否包含英文字符
+        const hasEnglish = /[a-zA-Z]/.test(searchQuery.value)
+        const language = hasEnglish ? 'en' : 'cn'
+        const response = await occupationApi.search(searchQuery.value, language)
+        searchResults.value = response.data.occupations
+        showSearchResults.value = true
       } catch (error) {
         console.error('搜索失败:', error)
       } finally {
@@ -266,23 +209,70 @@ export default {
       }
     }
 
+    // 选择职业
+    const selectOccupation = async (title) => {
+      searchQuery.value = title
+      showSearchResults.value = false
+      loading.value = true
+      
+      try {
+        // 获取职业任务分布
+        const hasEnglish = /[a-zA-Z]/.test(title)
+        const language = hasEnglish ? 'en' : 'cn'
+        const response = await occupationApi.getTasks(title, language)
+        popularTasks.value = response.data.tasks
+
+        // 更新任务分布柱状图
+        if (tasksBarChart) {
+          const tasks = response.data.tasks
+          // 按百分比降序排序
+          const sortedTasks = [...tasks].sort((a, b) => b.percentage - a.percentage)
+          
+          // 更新图表数据
+          tasksBarChart.setOption({
+            yAxis: {
+              data: sortedTasks.map(t => t.task)
+            },
+            series: [{
+              data: sortedTasks.map(t => t.percentage)
+            }]
+          })
+          
+          // 延迟调整大小，确保渲染完成
+          setTimeout(() => {
+            tasksBarChart.resize();
+          }, 200);
+        }
+      } catch (error) {
+        console.error('获取任务分布失败:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+
+    // 点击外部关闭搜索结果
+    const handleClickOutside = (event) => {
+      const searchSection = document.querySelector('.search-section')
+      if (searchSection && !searchSection.contains(event.target)) {
+        showSearchResults.value = false
+      }
+    }
+
     // 监听窗口大小变化
     const handleResize = () => {
-      gdpChart?.resize()
-      aiUsageChart?.resize()
-      taskDistributionChart?.resize()
+      tasksBarChart?.resize()
     }
 
     onMounted(() => {
       initCharts()
       window.addEventListener('resize', handleResize)
+      document.addEventListener('click', handleClickOutside)
     })
 
     onUnmounted(() => {
       window.removeEventListener('resize', handleResize)
-      gdpChart?.dispose()
-      aiUsageChart?.dispose()
-      taskDistributionChart?.dispose()
+      document.removeEventListener('click', handleClickOutside)
+      tasksBarChart?.dispose()
     })
 
     return {
@@ -290,10 +280,12 @@ export default {
       searchQuery,
       loading,
       popularTasks,
-      gdpChartRef,
-      aiUsageChartRef,
-      taskDistributionChartRef,
-      handleSearch
+      searchResults,
+      showSearchResults,
+      tasksBarChartRef,
+      handleSearchInput,
+      handleSearch,
+      selectOccupation
     }
   }
 }
@@ -301,41 +293,96 @@ export default {
 
 <style lang="scss" scoped>
 .home-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+
   .search-section {
-    margin-bottom: 2rem;
+    margin: 40px 0;
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin-left: 0;
     
     .search-input {
-      max-width: 600px;
-      margin: 0 auto;
+      width: 100%;
+
+      :deep(.el-input__wrapper) {
+        background-color: #fff;
+        border: 1px solid #dcdfe6;
+        border-radius: 4px;
+        box-shadow: none;
+        transition: all 0.3s;
+
+        &:hover, &.is-focus {
+          border-color: var(--el-color-primary);
+        }
+      }
+
+      :deep(.el-input__inner) {
+        height: 40px;
+        line-height: 40px;
+        font-size: 14px;
+        padding: 0 15px;
+        
+        &::placeholder {
+          color: #909399;
+        }
+      }
+
+      :deep(.el-input-group__append) {
+        padding: 0 20px;
+        background-color: var(--el-color-primary);
+        border-color: var(--el-color-primary);
+        
+        .el-button {
+          padding: 0;
+          border: none;
+          color: #fff;
+          font-size: 14px;
+          
+          &:hover {
+            color: #fff;
+            background-color: transparent;
+          }
+        }
+      }
     }
   }
 
-  .chart-container {
-    height: 380px;
+  .card-container {
+    background-color: var(--el-bg-color-overlay);
+    border-radius: 8px;
+    padding: 0 24px 24px 0;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+
+    .chart-container {
+      height: 380px;
+    }
   }
 
   .data-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
 
     .chart-card {
-      background-color: var(--secondary-bg);
+      background-color: var(--el-bg-color-overlay);
       border: none;
-      border-radius: 12px;
-      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 
       :deep(.el-card__header) {
-        background-color: var(--card-bg);
-        border-bottom: none;
-        padding: 15px 20px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--el-border-color-light);
       }
 
       .card-header {
-        font-size: 18px;
-        font-weight: bold;
-        color: var(--text-color);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--el-text-color-primary);
       }
 
       :deep(.el-card__body) {
@@ -352,19 +399,81 @@ export default {
       }
 
       :deep(.el-table) {
-        background-color: transparent;
-        color: var(--text-color);
-
-        th, td {
-          background-color: transparent;
-          border-bottom-color: rgba(255, 255, 255, 0.1);
+        --el-table-border-color: var(--el-border-color-lighter);
+        --el-table-header-bg-color: var(--el-fill-color-light);
+        
+        th {
+          background-color: var(--el-table-header-bg-color);
+          color: var(--el-text-color-regular);
+          font-weight: 600;
         }
 
-        th {
-          color: rgba(255, 255, 255, 0.7);
+        td {
+          color: var(--el-text-color-regular);
         }
       }
     }
+  }
+
+  // 搜索结果样式
+  .search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 2000;
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        padding: 0;
+        cursor: pointer;
+        
+        &:hover {
+          background-color: var(--el-color-primary-light-9);
+        }
+        
+        .search-item {
+          display: flex;
+          align-items: center;
+          padding: 12px 16px;
+          
+          i {
+            margin-right: 8px;
+            color: #909399;
+            font-size: 16px;
+          }
+          
+          .search-text {
+            color: var(--el-text-color-primary);
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+  
+  .no-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    padding: 16px;
+    text-align: center;
+    color: #909399;
+    font-size: 14px;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    z-index: 2000;
   }
 }
 </style> 

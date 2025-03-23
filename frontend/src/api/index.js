@@ -1,14 +1,24 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: process.env.VUE_APP_API_URL || '/api',
+  baseURL: '/api',
   timeout: 5000
 })
 
 export const occupationApi = {
   // 搜索职业数据
-  search(query) {
-    return api.get('/occupation/search', { params: { query } })
+  search(keyword, language = 'cn') {
+    return api.get('/occupation/search', { 
+      params: { 
+        keyword,
+        language 
+      } 
+    })
+  },
+  
+  // 获取职业任务
+  getOccupationTasks(onetSocCode) {
+    return api.get(`/occupation/${onetSocCode}/tasks`)
   },
   
   // 获取热门职业
@@ -17,8 +27,25 @@ export const occupationApi = {
   },
   
   // 提交反馈
-  submitFeedback(data) {
-    return api.post('/feedback', data)
+  submitFeedback(formData) {
+    if (formData instanceof FormData) {
+      return api.post('/feedback', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    } else {
+      // 支持直接传入对象格式
+      const data = new FormData();
+      for (const key in formData) {
+        data.append(key, formData[key]);
+      }
+      return api.post('/feedback', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    }
   },
   
   // 记录访问
@@ -29,6 +56,16 @@ export const occupationApi = {
   // 记录搜索
   recordSearch(query) {
     return api.post('/stats/search', { query })
+  },
+  
+  // 获取职业任务分布
+  getTasks: (title, language = 'cn') => {
+    return api.get('/occupation/tasks', {
+      params: {
+        title,
+        language
+      }
+    })
   }
 }
 

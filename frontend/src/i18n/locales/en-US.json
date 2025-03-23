@@ -1,0 +1,40 @@
+{
+  "occupation": {
+    "aiUsageRate": "AI Usage Rate",
+    "taskDistribution": "Task Distribution",
+    "popularTasks": "Popular AI Tasks",
+    "task": "Task",
+    "taskCn": "Task (Chinese)",
+    "percentage": "Percentage",
+    "aiScore": "AI Automation Score",
+    "searchPlaceholder": "Enter keyword to search occupations...",
+    "noResults": "No matching occupations found",
+    "backToHome": "Back to Home"
+  },
+  "common": {
+    "search": "Search",
+    "loading": "Loading...",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "feedback": {
+    "title": "Provide Feedback",
+    "button": "Feedback",
+    "type": "Type",
+    "content": "Content",
+    "success": "Thank you for your feedback!",
+    "error": "Submission failed",
+    "unknownError": "Unknown error",
+    "validation": "Please fill in type and content",
+    "suggestionType": "Suggestion",
+    "problemType": "Problem",
+    "otherType": "Other"
+  },
+  "app": {
+    "title": "Occupation Automation Index"
+  },
+  "language": {
+    "english": "English",
+    "chinese": "中文"
+  }
+} 
