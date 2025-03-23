@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pony.orm import db_session
 
 from app.models.database import is_db_initialized
-from app.models.EconIndex import EconIndex, EconIndexStats, get_title_percentage, search_titles_by_keyword
+from app.models.EconIndex import EconIndex, EconIndexStats, get_title_percentage, search_titles_by_keyword, record_occupation_search, get_popular_occupation_searches
 from app.utils.request_utils import generate_request_id
 
 # 获取日志记录器
@@ -75,7 +75,7 @@ async def health_check():
 # 添加经济指数相关API路由
 
 @router.get("/occupation/search")
-async def search_occupations(keyword: str = "", language: str = "cn", limit: int = 100, db: None = Depends(get_db)):
+async def search_occupations(keyword: str = "", language: str = "cn", limit: int = 100, request: Request = None, db: None = Depends(get_db)):
     """
     根据关键词搜索职业
     
@@ -104,6 +104,9 @@ async def search_occupations(keyword: str = "", language: str = "cn", limit: int
         occupations = titles
         
         logger.info(f"搜索结果: 找到 {len(occupations)} 个匹配的职业")
+        
+        # 这里不记录搜索关键词，只记录用户最终选择的职业
+        
         return {"occupations": occupations}
     
     except Exception as e:
@@ -111,7 +114,7 @@ async def search_occupations(keyword: str = "", language: str = "cn", limit: int
         raise HTTPException(status_code=500, detail=f"搜索失败: {str(e)}")
 
 @router.get("/occupation/tasks")
-async def get_occupation_tasks(title: str = "", language: str = "cn", db: None = Depends(get_db)):
+async def get_occupation_tasks(title: str = "", language: str = "cn", request: Request = None, db: None = Depends(get_db)):
     """
     获取指定职业的任务分布百分比
     
@@ -128,6 +131,10 @@ async def get_occupation_tasks(title: str = "", language: str = "cn", db: None =
         return {"tasks": []}
     
     try:
+        # 记录职业查询
+        client_ip = get_client_ip(request) if request else None
+        record_occupation_search(title, language, client_ip)
+        
         # 使用get_title_percentage函数获取任务分布
         tasks_data = get_title_percentage(title, language)
         
@@ -149,3 +156,27 @@ async def get_occupation_tasks(title: str = "", language: str = "cn", db: None =
     except Exception as e:
         logger.error(f"获取职业任务分布失败: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"获取任务分布失败: {str(e)}")
+
+@router.get("/occupation/popular")
+async def get_popular_occupations(days: int = 30, limit: int = 10, db: None = Depends(get_db)):
+    """
+    获取热门搜索的职业
+    
+    参数:
+        days: 最近几天的数据
+        limit: 返回的结果数量
+        
+    返回:
+        热门职业列表，包含职业名称和搜索次数
+    """
+    logger.info(f"获取热门职业，天数: {days}, 限制: {limit}")
+    
+    try:
+        popular_occupations = get_popular_occupation_searches(limit, days)
+        
+        logger.info(f"获取热门职业成功: {len(popular_occupations)} 个职业")
+        return {"occupations": popular_occupations}
+    
+    except Exception as e:
+        logger.error(f"获取热门职业失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"获取热门职业失败: {str(e)}")
