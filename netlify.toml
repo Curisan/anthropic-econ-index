@@ -9,12 +9,6 @@
   NODE_VERSION = "16"
   NPM_FLAGS = "--no-audit --prefer-offline"
 
-# 设置缓存
-[[plugins]]
-  package = "netlify-plugin-cache"
-  [plugins.inputs]
-    paths = ["frontend/node_modules", "frontend/.cache"]
-
 # 重定向规则
 [[redirects]]
   from = "/api/*"
