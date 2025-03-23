@@ -37,9 +37,9 @@
       <el-form :model="feedbackForm" label-width="100px">
         <el-form-item :label="t('feedback.type')">
           <el-select v-model="feedbackForm.type">
-            <el-option label="建议" value="suggestion" />
-            <el-option label="问题" value="problem" />
-            <el-option label="其他" value="other" />
+            <el-option :label="t('feedback.suggestionType')" value="suggestion" />
+            <el-option :label="t('feedback.problemType')" value="problem" />
+            <el-option :label="t('feedback.otherType')" value="other" />
           </el-select>
         </el-form-item>
         <el-form-item :label="t('feedback.content')">
@@ -66,6 +66,8 @@
 import { ref, reactive } from 'vue'
 // import { useI18n } from 'vue-i18n'
 import i18n from './i18n'
+import { occupationApi } from './api'
+import { ElMessage } from 'element-plus'
 
 export default {
   name: 'App',
@@ -88,11 +90,37 @@ export default {
     }
 
     const submitFeedback = async () => {
+      if (!feedbackForm.type || !feedbackForm.content) {
+        ElMessage.warning(t('feedback.validation'));
+        return;
+      }
+      
       try {
-        // TODO: 实现反馈提交逻辑
-        feedbackDialogVisible.value = false
+        // 将表单类型字段映射为后端接受的格式
+        const typeMapping = {
+          suggestion: '建议',
+          problem: '问题',
+          other: '其他'
+        };
+        
+        const feedbackData = {
+          feedback_type: typeMapping[feedbackForm.type],
+          feedback_content: feedbackForm.content
+        };
+        
+        const response = await occupationApi.submitFeedback(feedbackData);
+        
+        if (response.data.success) {
+          ElMessage.success(t('feedback.success'));
+          // 重置表单并关闭对话框
+          feedbackForm.content = '';
+          feedbackDialogVisible.value = false;
+        } else {
+          ElMessage.error(t('feedback.error') + ': ' + (response.data.error || t('feedback.unknownError')));
+        }
       } catch (error) {
-        console.error('提交反馈失败:', error)
+        console.error('提交反馈失败:', error);
+        ElMessage.error(t('feedback.error'));
       }
     }
 

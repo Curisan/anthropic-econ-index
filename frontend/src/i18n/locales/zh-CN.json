@@ -13,6 +13,28 @@
   },
   "common": {
     "search": "搜索",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "submit": "提交",
+    "cancel": "取消"
+  },
+  "feedback": {
+    "title": "提供反馈",
+    "button": "反馈",
+    "type": "类型",
+    "content": "内容",
+    "success": "感谢您的反馈！",
+    "error": "提交失败",
+    "unknownError": "未知错误",
+    "validation": "请填写类型和内容",
+    "suggestionType": "建议",
+    "problemType": "问题",
+    "otherType": "其他"
+  },
+  "app": {
+    "title": "职业自动化指数"
+  },
+  "language": {
+    "english": "English",
+    "chinese": "中文"
   }
 } 

@@ -27,8 +27,25 @@ export const occupationApi = {
   },
   
   // 提交反馈
-  submitFeedback(data) {
-    return api.post('/feedback', data)
+  submitFeedback(formData) {
+    if (formData instanceof FormData) {
+      return api.post('/feedback', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    } else {
+      // 支持直接传入对象格式
+      const data = new FormData();
+      for (const key in formData) {
+        data.append(key, formData[key]);
+      }
+      return api.post('/feedback', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    }
   },
   
   // 记录访问

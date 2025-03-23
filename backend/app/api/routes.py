@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pony.orm import db_session
 
 from app.models.database import is_db_initialized
-from app.models.EconIndex import EconIndex, EconIndexStats, get_title_percentage, search_titles_by_keyword, record_occupation_search, get_popular_occupation_searches
+from app.models.EconIndex import EconIndex, EconIndexStats, get_title_percentage, search_titles_by_keyword, record_occupation_search, get_popular_occupation_searches, add_feedback, get_feedbacks
 from app.utils.request_utils import generate_request_id
 
 # 获取日志记录器
@@ -180,3 +180,76 @@ async def get_popular_occupations(days: int = 30, limit: int = 10, db: None = De
     except Exception as e:
         logger.error(f"获取热门职业失败: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"获取热门职业失败: {str(e)}")
+
+# 反馈相关API
+@router.post("/feedback")
+async def submit_feedback(
+    feedback_type: str = Form(...),
+    feedback_content: str = Form(...),
+    request: Request = None,
+    db: None = Depends(get_db)
+):
+    """
+    提交用户反馈
+    
+    参数:
+        feedback_type: 反馈类型('建议', '问题', '其他')
+        feedback_content: 反馈内容
+        
+    返回:
+        反馈提交状态
+    """
+    logger.info(f"提交反馈, 类型: {feedback_type}")
+    
+    try:
+        # 获取客户端IP
+        client_ip = get_client_ip(request) if request else None
+        
+        # 添加反馈
+        feedback_id = add_feedback(
+            feedback_type=feedback_type,
+            feedback_content=feedback_content,
+            client_ip=client_ip
+        )
+        
+        if feedback_id:
+            logger.info(f"反馈提交成功，ID: {feedback_id}")
+            return {"success": True, "feedback_id": feedback_id}
+        else:
+            logger.warning("反馈提交失败")
+            return {"success": False, "error": "反馈提交失败"}
+    
+    except Exception as e:
+        logger.error(f"提交反馈失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"提交反馈失败: {str(e)}")
+
+@router.get("/feedback")
+async def get_feedback_list(
+    days: int = 30,
+    limit: int = 50,
+    db: None = Depends(get_db)
+):
+    """
+    获取反馈列表
+    
+    参数:
+        days: 最近几天的数据，默认30天
+        limit: 返回的结果数量，默认50条
+        
+    返回:
+        反馈列表
+    """
+    logger.info(f"获取反馈列表, 天数: {days}")
+    
+    try:
+        feedbacks = get_feedbacks(
+            days=days,
+            limit=limit
+        )
+        
+        logger.info(f"获取反馈列表成功: {len(feedbacks)} 条")
+        return {"feedbacks": feedbacks}
+    
+    except Exception as e:
+        logger.error(f"获取反馈列表失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"获取反馈列表失败: {str(e)}")

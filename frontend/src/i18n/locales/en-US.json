@@ -13,6 +13,28 @@
   },
   "common": {
     "search": "Search",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "feedback": {
+    "title": "Provide Feedback",
+    "button": "Feedback",
+    "type": "Type",
+    "content": "Content",
+    "success": "Thank you for your feedback!",
+    "error": "Submission failed",
+    "unknownError": "Unknown error",
+    "validation": "Please fill in type and content",
+    "suggestionType": "Suggestion",
+    "problemType": "Problem",
+    "otherType": "Other"
+  },
+  "app": {
+    "title": "Occupation Automation Index"
+  },
+  "language": {
+    "english": "English",
+    "chinese": "中文"
   }
 } 
