@@ -6,6 +6,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import i18n from './i18n'
 import './assets/styles/main.scss'
+import './assets/favicon.js'
 
 const app = createApp(App)
 

@@ -2,10 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <!-- 基本图标引用，其余由脚本动态添加 -->
+    <link rel="icon" type="image/svg+xml" href="/src/assets/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anthropic 经济指数</title>
+    <title>Anthropic 经济指数 | Economic Index</title>
+    <meta name="description" content="Anthropic经济指数提供AI对各职业的任务分布分析，了解AI如何影响不同行业和职业。Anthropic Economic Index analyzes AI task distribution across occupations, understanding how AI impacts different industries and professions." />
+    <meta name="keywords" content="Anthropic,经济指数,Economic Index,AI,职业分析,Occupation Analysis,任务分布,Task Distribution,人工智能,Artificial Intelligence,行业影响,Industry Impact" />
+    <meta name="author" content="Anthropic" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://anthropic-econ-index.info/" />
+    <meta property="og:title" content="Anthropic 经济指数 | Economic Index" />
+    <meta property="og:description" content="Anthropic经济指数提供AI对各职业的任务分布分析，了解AI如何影响不同行业和职业。Anthropic Economic Index analyzes AI task distribution across occupations, understanding how AI impacts different industries and professions." />
+    <meta property="og:image" content="/src/assets/logo.svg" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://anthropic-econ-index.info/" />
+    <meta property="twitter:title" content="Anthropic 经济指数 | Economic Index" />
+    <meta property="twitter:description" content="Anthropic经济指数提供AI对各职业的任务分布分析，了解AI如何影响不同行业和职业。Anthropic Economic Index analyzes AI task distribution across occupations, understanding how AI impacts different industries and professions." />
+    <meta property="twitter:image" content="/src/assets/logo.svg" />
+    
     <meta name="google-site-verification" content="0XKl-zNikxiZEArRUgY1bq7bZwAC9yGBpYKhPbMHEQ8" />
+    
+    <!-- 结构化数据标记 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Anthropic 经济指数 | Economic Index",
+      "url": "https://anthropic-econ-index.info/",
+      "description": "Anthropic经济指数提供AI对各职业的任务分布分析，了解AI如何影响不同行业和职业。Anthropic Economic Index analyzes AI task distribution across occupations, understanding how AI impacts different industries and professions.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://anthropic-econ-index.info/?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="app"></div>

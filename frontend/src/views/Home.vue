@@ -1,12 +1,13 @@
 <template>
   <div class="home-container">
     <!-- 搜索区域 -->
-    <div class="search-section">
+    <div class="search-section" role="search" aria-label="职业搜索">
       <el-input
         v-model="searchQuery"
         :placeholder="t('occupation.searchPlaceholder')"
         class="search-input"
         @input="handleSearchInput"
+        aria-label="搜索职业"
       >
         <!-- <template #append>
           <el-button type="primary" @click="handleSearch">
@@ -16,15 +17,16 @@
       </el-input>
 
       <!-- 搜索结果下拉列表 -->
-      <div v-if="showSearchResults && searchResults.length > 0" class="search-results">
+      <div v-if="showSearchResults && searchResults.length > 0" class="search-results" role="listbox">
         <ul>
           <li 
             v-for="title in searchResults" 
             :key="title"
             @click="selectOccupation(title)"
+            role="option"
           >
             <div class="search-item">
-              <i class="el-icon-search"></i>
+              <i class="el-icon-search" aria-hidden="true"></i>
               <span class="search-text">{{ title }}</span>
             </div>
           </li>
@@ -38,8 +40,8 @@
     </div>
 
     <!-- 职业任务分布卡片 -->
-    <div class="card-container">
-      <div class="chart-container" ref="tasksBarChartRef"></div>
+    <div class="card-container" role="region" aria-label="职业任务分布">
+      <div class="chart-container" ref="tasksBarChartRef" aria-label="任务分布图表"></div>
     </div>
 
     <!-- 数据展示区域已移除 -->
@@ -242,6 +244,18 @@ export default {
           setTimeout(() => {
             tasksBarChart.resize();
           }, 200);
+        }
+        
+        // 更新页面标题，提高SEO（中英文双语）
+        document.title = `${title} - Anthropic 经济指数 | Economic Index`
+        
+        // 更新meta描述（中英文双语）
+        const metaDescription = document.querySelector('meta[name="description"]')
+        if (metaDescription) {
+          metaDescription.setAttribute('content', 
+            `查看${title}的AI任务分布和自动化程度分析，了解AI如何影响该职业。` +
+            `View AI task distribution and automation level analysis for ${title}, understand how AI impacts this profession.`
+          )
         }
       } catch (error) {
         console.error('获取任务分布失败:', error)
