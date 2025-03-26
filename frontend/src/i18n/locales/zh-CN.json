@@ -9,7 +9,8 @@
     "aiScore": "AI自动化分数",
     "searchPlaceholder": "输入关键词搜索职业...",
     "noResults": "没有找到匹配的职业",
-    "backToHome": "返回首页"
+    "backToHome": "返回首页",
+    "minSearchLength": "非中文搜索需要至少输入2个字符"
   },
   "common": {
     "search": "搜索",

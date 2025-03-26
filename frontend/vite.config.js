@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { copyFileSync, mkdirSync, existsSync } from 'fs'
+import { copyFileSync, mkdirSync, existsSync, readdirSync } from 'fs'
 
 export default defineConfig({
   plugins: [
@@ -26,21 +26,38 @@ export default defineConfig({
             path.resolve(__dirname, 'dist/assets/logo.svg')
           );
           
-          // 如果public目录中存在favicon.ico，复制到dist根目录
-          const faviconSrc = path.resolve(__dirname, 'public/favicon.ico');
-          const appleTouchIconSrc = path.resolve(__dirname, 'public/apple-touch-icon.png');
-          
-          if (existsSync(faviconSrc)) {
-            copyFileSync(faviconSrc, path.resolve(__dirname, 'dist/favicon.ico'));
+          // 处理public目录中的所有图标文件
+          const publicDir = path.resolve(__dirname, 'public');
+          if (existsSync(publicDir)) {
+            const files = readdirSync(publicDir);
+            
+            // 复制所有图标文件到dist根目录
+            for (const file of files) {
+              // 跳过目录
+              const filePath = path.resolve(publicDir, file);
+              if (existsSync(filePath) && !filePath.includes('assets') && file !== '.DS_Store') {
+                copyFileSync(filePath, path.resolve(__dirname, 'dist', file));
+              }
+            }
+            
+            // 复制assets子目录的文件
+            const publicAssetsDir = path.resolve(publicDir, 'assets');
+            if (existsSync(publicAssetsDir)) {
+              const assetFiles = readdirSync(publicAssetsDir);
+              for (const file of assetFiles) {
+                if (file !== '.DS_Store') {
+                  copyFileSync(
+                    path.resolve(publicAssetsDir, file),
+                    path.resolve(assetsDir, file)
+                  );
+                }
+              }
+            }
           }
           
-          if (existsSync(appleTouchIconSrc)) {
-            copyFileSync(appleTouchIconSrc, path.resolve(__dirname, 'dist/apple-touch-icon.png'));
-          }
-          
-          console.log('SEO files and icons copied to dist directory');
+          console.log('SEO文件和图标已成功复制到dist目录');
         } catch (err) {
-          console.error('Error copying files:', err);
+          console.error('复制文件时出错:', err);
         }
       }
     }
