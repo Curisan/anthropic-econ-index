@@ -9,7 +9,8 @@
     "aiScore": "AI Automation Score",
     "searchPlaceholder": "Enter keyword to search occupations...",
     "noResults": "No matching occupations found",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "minSearchLength": "Non-Chinese search requires at least 2 characters"
   },
   "common": {
     "search": "Search",

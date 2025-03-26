@@ -32,11 +32,13 @@
     <el-dialog
       :title="t('feedback.title')"
       v-model="feedbackDialogVisible"
-      width="500px"
+      :width="isMobile ? '90%' : '500px'"
+      :top="isMobile ? '20vh' : '15vh'"
+      class="feedback-dialog"
     >
-      <el-form :model="feedbackForm" label-width="100px">
+      <el-form :model="feedbackForm" :label-width="isMobile ? '60px' : '100px'">
         <el-form-item :label="t('feedback.type')">
-          <el-select v-model="feedbackForm.type">
+          <el-select v-model="feedbackForm.type" style="width: 100%">
             <el-option :label="t('feedback.suggestionType')" value="suggestion" />
             <el-option :label="t('feedback.problemType')" value="problem" />
             <el-option :label="t('feedback.otherType')" value="other" />
@@ -46,24 +48,26 @@
           <el-input
             type="textarea"
             v-model="feedbackForm.content"
-            :rows="4"
+            :rows="isMobile ? 3 : 4"
           />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="feedbackDialogVisible = false">
-          {{ t('common.cancel') }}
-        </el-button>
-        <el-button type="primary" @click="submitFeedback">
-          {{ t('common.submit') }}
-        </el-button>
+        <div class="dialog-footer" :class="{'mobile-footer': isMobile}">
+          <el-button @click="feedbackDialogVisible = false">
+            {{ t('common.cancel') }}
+          </el-button>
+          <el-button type="primary" @click="submitFeedback">
+            {{ t('common.submit') }}
+          </el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 // import { useI18n } from 'vue-i18n'
 import i18n from './i18n'
 import { occupationApi } from './api'
@@ -80,6 +84,7 @@ export default {
       type: 'suggestion',
       content: ''
     })
+    const isMobile = ref(window.innerWidth <= 768)
 
     const toggleLanguage = (val) => {
       locale.value = val ? 'en' : 'zh'
@@ -124,11 +129,25 @@ export default {
       }
     }
 
+    // 检测设备类型
+    const checkDeviceType = () => {
+      isMobile.value = window.innerWidth <= 768
+    }
+
+    onMounted(() => {
+      window.addEventListener('resize', checkDeviceType)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', checkDeviceType)
+    })
+
     return {
       t,
       isEnglish,
       feedbackDialogVisible,
       feedbackForm,
+      isMobile,
       toggleLanguage,
       showFeedbackForm,
       submitFeedback
@@ -217,5 +236,87 @@ export default {
   background-color: #304490;
   border-color: #455ab3;
   color: white;
+}
+
+// 反馈表单移动端适配样式
+.feedback-dialog {
+  :deep(.el-dialog__header) {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  :deep(.el-dialog__body) {
+    padding: 20px;
+    
+    @media (max-width: 768px) {
+      padding: 15px;
+    }
+  }
+  
+  :deep(.el-dialog__footer) {
+    padding: 10px 20px 20px;
+    
+    @media (max-width: 768px) {
+      padding: 10px 15px 15px;
+    }
+  }
+  
+  .mobile-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    
+    .el-button {
+      flex: 1;
+      margin-left: 0;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    :deep(.el-form-item) {
+      margin-bottom: 15px;
+    }
+    
+    :deep(.el-form-item__label) {
+      font-size: 14px;
+      padding-right: 5px;
+    }
+    
+    :deep(.el-select) {
+      width: 100%;
+    }
+    
+    :deep(.el-button) {
+      padding: 8px 15px;
+      font-size: 14px;
+    }
+  }
+}
+
+// 移动设备适配
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0.5rem 1rem;
+    
+    .logo h1 {
+      font-size: 1.2rem;
+    }
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .app-footer {
+    .feedback-button {
+      right: 1rem;
+      bottom: 1rem;
+      
+      .el-button {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+      }
+    }
+  }
 }
 </style> 
