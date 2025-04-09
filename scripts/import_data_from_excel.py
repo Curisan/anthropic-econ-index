@@ -3,7 +3,7 @@ from pony.orm import db_session
 from datetime import datetime
 
 from app.models import setup_database, is_db_initialized
-from app.models.EconIndex import EconIndex
+from app.models.EconIndex import EconIndex, update_occupation_stats
 from app.core.config import DB_TYPE, DB_CONFIG
 
 # 读取Excel文件
@@ -45,4 +45,9 @@ def import_data_from_excel():
             break
 
 if __name__ == "__main__":
-    import_data_from_excel()
+    # import_data_from_excel()
+    # 更新职业统计数据
+    if update_occupation_stats():
+        print("职业统计数据更新成功")
+    else:
+        print("职业统计数据更新失败")

@@ -2,7 +2,7 @@
 图片记录实体模块 - 定义图片处理记录的数据模型
 """
 from datetime import datetime
-from pony.orm import PrimaryKey, Required, db_session, select, Optional
+from pony.orm import PrimaryKey, Required, db_session, select, Optional, avg
 
 from app.models.database import db
 from app.models.database import is_db_initialized
@@ -261,3 +261,47 @@ def get_popular_occupation_searches(limit: int = 10, days: int = 30):
     except Exception as e:
         logger.error(f"获取热门职业搜索失败: {str(e)}", exc_info=True)
         return []
+
+@db_session
+def update_occupation_stats():
+    """
+    更新职业统计数据到 EconIndexStats 表
+    统计每个职业的：
+    1. 所有任务百分比之和
+    2. 非零任务的平均百分比
+    3. 自动化分数的平均值
+    """
+    try:
+        # 清空现有统计数据
+        EconIndexStats.select().delete()
+        
+        # 获取所有不同的职业
+        unique_titles = select((e.title, e.title_cn) for e in EconIndex).distinct()
+        
+        # 对每个职业进行统计
+        for title, title_cn in unique_titles:
+            # 获取该职业的所有任务
+            tasks = select(e for e in EconIndex if e.title == title)
+            
+            # 计算统计数据
+            percentage_sum = sum(t.percentage for t in tasks)
+            automated_score_avg = avg(t.automated_score for t in tasks)
+            
+            # 计算非零任务的平均百分比
+            non_zero_tasks = select(e for e in EconIndex if e.title == title and e.percentage > 0)
+            percentage_non_zero = avg(t.percentage for t in non_zero_tasks)
+            
+            # 创建统计记录
+            EconIndexStats(
+                title=title,
+                title_cn=title_cn,
+                percentage_sum=percentage_sum,
+                percentage_non_zero=percentage_non_zero if percentage_non_zero else 0.0,
+                automated_score_avg=automated_score_avg if automated_score_avg else 0.0
+            )
+        
+        logger.info("职业统计数据更新完成")
+        return True
+    except Exception as e:
+        logger.error(f"更新职业统计数据失败: {str(e)}", exc_info=True)
+        return False
