@@ -6,6 +6,8 @@
     "task": "Task",
     "taskCn": "Task (Chinese)",
     "percentage": "Percentage",
+    "dialogueRanking": "Occupation Dialogue Ranking",
+    "dialoguePercentage": "Dialogue Percentage",
     "aiScore": "AI Automation Score",
     "searchPlaceholder": "Enter keyword to search occupations...",
     "noResults": "No matching occupations found",

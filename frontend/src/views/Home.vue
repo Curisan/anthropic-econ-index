@@ -5,6 +5,9 @@
 
     <!-- 职业任务分布卡片 -->
     <tasks-chart-component :tasks="popularTasks" />
+
+    <!-- 职业统计卡片 -->
+    <occupation-rank-chart :stats="occupationStats" @limit-change="handleLimitChange" />
   </div>
 </template>
 
@@ -14,19 +17,38 @@ import i18n from '../i18n'
 import { occupationApi } from '../api'
 import SearchComponent from '../components/SearchComponent.vue'
 import TasksChartComponent from '../components/TasksChartComponent.vue'
+import OccupationRankChart from '../components/OccupationRankChart.vue'
 import { ElMessage } from 'element-plus'
 
 export default {
   name: 'Home',
   components: {
     SearchComponent,
-    TasksChartComponent
+    TasksChartComponent,
+    OccupationRankChart
   },
   setup() {
     const { t } = i18n.global
     
     const loading = ref(false)
     const popularTasks = ref([])
+    const occupationStats = ref([])
+    
+    // 获取职业统计数据
+    const fetchOccupationStats = async (limit = 20) => {
+      try {
+        const response = await occupationApi.getStats(limit)
+        occupationStats.value = response.data.stats
+      } catch (error) {
+        console.error('获取职业统计数据失败:', error)
+        ElMessage.error(t('occupation.statsError'))
+      }
+    }
+    
+    // 处理 limit 变化
+    const handleLimitChange = (newLimit) => {
+      fetchOccupationStats(newLimit)
+    }
     
     // 选择职业
     const selectOccupation = async (title) => {
@@ -58,11 +80,16 @@ export default {
       }
     }
 
+    // 页面加载时获取统计数据
+    fetchOccupationStats()
+
     return {
       t,
       loading,
       popularTasks,
-      selectOccupation
+      occupationStats,
+      selectOccupation,
+      handleLimitChange
     }
   }
 }

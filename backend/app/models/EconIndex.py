@@ -2,7 +2,7 @@
 图片记录实体模块 - 定义图片处理记录的数据模型
 """
 from datetime import datetime
-from pony.orm import PrimaryKey, Required, db_session, select, Optional, avg
+from pony.orm import PrimaryKey, Required, db_session, select, Optional, avg, desc
 
 from app.models.database import db
 from app.models.database import is_db_initialized
@@ -128,6 +128,39 @@ def search_titles_by_keyword(keyword: str, language: str) -> list:
         return list(titles)
     except Exception as e:
         logger.error(f"搜索职业标题失败,关键字:{keyword}, 错误:{str(e)}", exc_info=True)
+        return []
+    
+@timer
+@db_session
+def occupation_stats(type: str="percentage_sum", limit: int = 20) -> list:
+    """
+    获取所有职业的统计数据
+    """
+    try:
+        # 修复 order_by 语法
+        stats = EconIndexStats.select().order_by(lambda s: desc(s.percentage_sum))[:limit]
+        print("stats", stats)
+        result = []
+        if type == "percentage_sum":
+            for stat in stats:
+                result.append({
+                    "title": stat.title,
+                    "title_cn": stat.title_cn,
+                    "percentage_sum": stat.percentage_sum
+                    })
+        elif type == "percentage_non_zero":
+            for stat in stats:
+                result.append({
+                    "title": stat.title,
+                    "title_cn": stat.title_cn,
+                    "percentage_non_zero": stat.percentage_non_zero
+                })
+        else:
+            # 不支持
+            logger.error(f"不支持的类型: {type}")
+        return result
+    except Exception as e:
+        logger.error(f"获取职业统计数据失败: {str(e)}", exc_info=True)
         return []
 
 @db_session

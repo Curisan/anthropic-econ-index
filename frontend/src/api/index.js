@@ -66,6 +66,13 @@ export const occupationApi = {
         language
       }
     })
+  },
+
+  // 获取职业统计数据
+  getStats(limit = 20) {
+    return api.get('/occupation/stats', {
+      params: { limit }
+    })
   }
 }
 
