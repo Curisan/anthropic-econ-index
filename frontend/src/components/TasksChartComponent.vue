@@ -61,12 +61,15 @@ export default {
         },
         xAxis: {
           type: 'value',
-          name: '占比',
-          nameLocation: 'end',
+          name: t('occupation.percentage'),
+          nameLocation: 'middle',
           nameTextStyle: {
             color: '#666',
             fontSize: isExtraSmall ? 9 : (isMobile ? 10 : 14),
-            align: 'right'
+            align: 'right',
+            verticalAlign: 'bottom',
+            lineHeight: -5,
+            padding: [10, 0, 0, 0] // 添加padding来调整位置, 0, 0, 0, 10 表示左padding为0，右padding为0，上padding为0，下padding为10
           },
           axisLine: {
             show: true,
@@ -337,6 +340,17 @@ export default {
         updateChart()
       }
     }, { deep: true })
+
+    // 监听语言变化
+    watch(() => i18n.global.locale.value, () => {
+      if (chart) {
+        chart.setOption({
+          xAxis: {
+            name: t('occupation.percentage')
+          }
+        });
+      }
+    })
 
     onMounted(() => {
       initChart()
