@@ -1,12 +1,14 @@
 <template>
   <div class="w-full bg-white rounded-lg shadow p-4">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-semibold text-gray-700">{{ t('occupationRanking') }}</h2>
+      <h2 class="text-lg font-semibold text-gray-700">{{ t('occupation.dialogueRanking') }}</h2>
       <select v-model="limit" @change="onLimitChange" class="px-3 py-1 border rounded text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
         <option value="10">Top 10</option>
         <option value="20">Top 20</option>
         <option value="30">Top 30</option>
         <option value="50">Top 50</option>
+        <option value="100">Top 100</option>
+        <option value="1000">All</option>
       </select>
     </div>
     <div :style="chartStyle" ref="chartRef" aria-label="职业对话占比排名图表"></div>
@@ -78,7 +80,7 @@ export default {
           formatter: '{b}: {c}%'
         },
         grid: {
-          left: isExtraSmall ? '25%' : (isMobile ? '30%' : '20%'),
+          left: isExtraSmall ? '5%' : (isMobile ? '5%' : '5%'),
           right: '5%',
           bottom: '5%',
           top: '5%',
@@ -110,8 +112,8 @@ export default {
             barWidth: isExtraSmall ? '45%' : (isMobile ? '50%' : '60%'),
             itemStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                { offset: 0, color: '#1E40AF' },  // 深蓝色起始
-                { offset: 1, color: '#3B82F6' }   // 亮蓝色结束
+                { offset: 0, color: '#4facfe' },
+                { offset: 1, color: '#00f2fe' }
               ]),
               borderRadius: [0, 4, 4, 0]
             },
@@ -157,7 +159,7 @@ export default {
         
         chart.setOption({
           grid: {
-            left: isExtraSmall ? '25%' : (isMobile ? '30%' : '20%')
+            left: isExtraSmall ? '20%' : (isMobile ? '25%' : '15%')
           },
           yAxis: {
             axisLabel: {

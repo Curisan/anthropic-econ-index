@@ -1,11 +1,11 @@
 <template>
-  <div class="bg-secondary-bg rounded-xl p-6 shadow-lg mb-6" role="region" aria-label="职业任务分布">
-    <div class="h-96 md:h-[450px]" ref="chartRef" aria-label="任务分布图表"></div>
+  <div class="bg-white rounded-xl p-6 shadow-lg mb-6" role="region" aria-label="职业任务分布">
+    <div :style="chartStyle" ref="chartRef" aria-label="任务分布图表"></div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import * as echarts from 'echarts'
 import i18n from '../i18n'
 
@@ -21,6 +21,24 @@ export default {
     const { t } = i18n.global
     const chartRef = ref(null)
     let chart = null
+    
+    // 计算图表样式，包括动态高度
+    const chartStyle = computed(() => {
+      const baseHeight = 450 // 基础高度
+      const itemHeight = 40  // 每个任务的高度
+      const minHeight = 450  // 最小高度
+      const maxHeight = 600  // 最大高度
+      
+      // 根据任务数量计算高度
+      const calculatedHeight = baseHeight + (props.tasks.length * itemHeight)
+      
+      // 确保高度在最小值和最大值之间
+      const height = Math.max(minHeight, Math.min(calculatedHeight, maxHeight))
+      
+      return {
+        height: `${height}px`
+      }
+    })
     
     // 初始化图表
     const initChart = () => {
@@ -386,7 +404,8 @@ export default {
     })
 
     return {
-      chartRef
+      chartRef,
+      chartStyle
     }
   }
 }
