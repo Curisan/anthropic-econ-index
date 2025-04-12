@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pony.orm import db_session
 
 from app.models.database import is_db_initialized
-from app.models.EconIndex import EconIndex, EconIndexStats, get_title_percentage, search_titles_by_keyword, record_occupation_search, get_popular_occupation_searches, add_feedback, get_feedbacks
+from app.models.EconIndex import EconIndex, EconIndexStats, get_title_percentage, search_titles_by_keyword, record_occupation_search, get_popular_occupation_searches, add_feedback, get_feedbacks, occupation_stats
 from app.utils.request_utils import generate_request_id
 
 # 获取日志记录器
@@ -253,3 +253,21 @@ async def get_feedback_list(
     except Exception as e:
         logger.error(f"获取反馈列表失败: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"获取反馈列表失败: {str(e)}")
+    
+@router.get("/occupation/stats")
+async def get_occupation_stats(type: str = "percentage_sum", limit: int = 20, db: None = Depends(get_db)):
+    """
+    获取所有职业的统计数据
+    
+    返回:
+        职业统计数据列表，包含每个职业的总对话占比、非零任务平均占比和自动化分数
+    """
+    logger.info("获取职业统计数据")
+    
+    try:
+        stats = occupation_stats(type, limit)
+        logger.info(f"获取职业统计数据成功: {len(stats)} 个职业")
+        return {"stats": stats}
+    except Exception as e:
+        logger.error(f"获取职业统计数据失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"获取职业统计数据失败: {str(e)}") 
