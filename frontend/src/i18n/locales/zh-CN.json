@@ -6,6 +6,8 @@
     "task": "任务",
     "taskCn": "任务(中文)",
     "percentage": "占比",
+    "dialogueRanking": "职业对话占比排名",
+    "dialoguePercentage": "对话占比",
     "aiScore": "AI自动化分数",
     "searchPlaceholder": "输入关键词搜索职业...",
     "noResults": "没有找到匹配的职业",

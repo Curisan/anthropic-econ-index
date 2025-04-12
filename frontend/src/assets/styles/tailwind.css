@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-primary-bg text-text-color font-sans;
+  }
+  
+  #app {
+    @apply min-h-screen;
+  }
+}
+
+@layer components {
+  .card-container {
+    @apply bg-secondary-bg rounded-xl p-5 shadow-lg mb-5;
+  }
+  
+  .chart-title {
+    @apply text-2xl font-bold mb-2 text-text-color;
+  }
+  
+  .chart-subtitle {
+    @apply text-sm text-opacity-70 text-white mb-5;
+  }
+} 

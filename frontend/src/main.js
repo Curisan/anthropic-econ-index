@@ -5,7 +5,7 @@ import store from './store'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import i18n from './i18n'
-import './assets/styles/main.scss'
+import './assets/styles/tailwind.css'
 import './assets/favicon.js'
 
 const app = createApp(App)
