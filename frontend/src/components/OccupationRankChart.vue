@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-white rounded-lg shadow p-4">
+  <div class="bg-white rounded-xl p-6 shadow-lg mb-6">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold text-gray-700">{{ t('occupation.dialogueRanking') }}</h2>
       <select v-model="limit" @change="onLimitChange" class="px-3 py-1 border rounded text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -185,7 +185,19 @@ export default {
     watch(limit, updateChart)
     
     // 监听语言变化
-    watch(() => i18n.global.locale.value, updateChart)
+    watch(() => i18n.global.locale.value, () => {
+      if (chart) {
+        chart.setOption({
+          xAxis: {
+            name: t('occupation.percentage')
+          },
+          series: [{
+            name: t('occupation.dialoguePercentage')
+          }]
+        })
+      }
+      updateChart()
+    })
 
     onMounted(() => {
       initChart()

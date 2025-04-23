@@ -137,9 +137,14 @@ def occupation_stats(type: str="percentage_sum", limit: int = 20) -> list:
     获取所有职业的统计数据
     """
     try:
-        # 修复 order_by 语法
-        stats = EconIndexStats.select().order_by(lambda s: desc(s.percentage_sum))[:limit]
-        print("stats", stats)
+        if type == "percentage_sum":
+            stats = EconIndexStats.select().order_by(lambda s: desc(s.percentage_sum))[:limit]
+        elif type == "percentage_non_zero":
+            stats = EconIndexStats.select().order_by(lambda s: desc(s.percentage_non_zero))[:limit]
+        else:
+            # 不支持
+            logger.error(f"不支持的类型: {type}")
+            return []
         result = []
         if type == "percentage_sum":
             for stat in stats:
@@ -321,8 +326,10 @@ def update_occupation_stats():
             automated_score_avg = avg(t.automated_score for t in tasks)
             
             # 计算非零任务的平均百分比
+            # 计算非零任务占比
+            all_tasks = select(e for e in EconIndex if e.title == title)
             non_zero_tasks = select(e for e in EconIndex if e.title == title and e.percentage > 0)
-            percentage_non_zero = avg(t.percentage for t in non_zero_tasks)
+            percentage_non_zero = len(non_zero_tasks) / len(all_tasks) if len(all_tasks) > 0 else 0
             
             # 创建统计记录
             EconIndexStats(
