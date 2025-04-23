@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 py-4">
+  <div class="max-w-7xl mx-auto px-4 py-4 space-y-6">
     <!-- 搜索区域 -->
     <search-component @select-occupation="selectOccupation" />
 
@@ -11,6 +11,9 @@
 
     <!-- 职业非零任务占比卡片 -->
     <non-zero-tasks-chart :stats="nonZeroTasksStats" @limit-change="handleNonZeroLimitChange" />
+
+    <!-- 对话占比最高任务表格 -->
+    <top-tasks-table :stats="topTasksStats" @limit-change="handleTopTasksLimitChange" />
   </div>
 </template>
 
@@ -22,6 +25,7 @@ import SearchComponent from '../components/SearchComponent.vue'
 import TasksChartComponent from '../components/TasksChartComponent.vue'
 import OccupationRankChart from '../components/OccupationRankChart.vue'
 import NonZeroTasksChart from '../components/NonZeroTasksChart.vue'
+import TopTasksTable from '../components/TopTasksTable.vue'
 import { ElMessage } from 'element-plus'
 
 export default {
@@ -30,7 +34,8 @@ export default {
     SearchComponent,
     TasksChartComponent,
     OccupationRankChart,
-    NonZeroTasksChart
+    NonZeroTasksChart,
+    TopTasksTable
   },
   setup() {
     const { t } = i18n.global
@@ -39,6 +44,8 @@ export default {
     const popularTasks = ref([])
     const occupationStats = ref([])
     const nonZeroTasksStats = ref([])
+    const topTasksStats = ref([])
+    const limit = ref(20)
     // 获取职业统计数据
     const fetchOccupationStats = async (limit = 20) => {
       try {
@@ -61,6 +68,17 @@ export default {
         ElMessage.error(t('occupation.nonZeroTasksError'))
       }
     }
+
+    // 获取对话占比最高任务
+    const fetchTopTasksStats = async (limit = 20) => {
+      try {
+        const response = await occupationApi.getTopTasks(limit)
+        topTasksStats.value = response.data.tasks
+      } catch (error) {
+        console.error('获取对话占比最高任务失败:', error)
+        ElMessage.error(t('occupation.topTasksError'))
+      }
+    }
     
     // 处理 limit 变化
     const handleLimitChange = (newLimit) => {
@@ -70,6 +88,11 @@ export default {
     // 处理非零任务 limit 变化
     const handleNonZeroLimitChange = (newLimit) => {
       fetchNonZeroTasksStats(newLimit)
+    }
+
+    // 处理 TopTasksTable 的 limit 变化
+    const handleTopTasksLimitChange = (newLimit) => {
+      fetchTopTasksStats(newLimit)
     }
     
     // 选择职业
@@ -101,19 +124,24 @@ export default {
         loading.value = false
       }
     }
-
+    
     // 页面加载时获取统计数据
     fetchOccupationStats()
     fetchNonZeroTasksStats()
+    fetchTopTasksStats()
+
     return {
       t,
       loading,
       popularTasks,
       occupationStats,
       nonZeroTasksStats,
+      topTasksStats,
+      limit,
       selectOccupation,
       handleLimitChange,
-      handleNonZeroLimitChange
+      handleNonZeroLimitChange,
+      handleTopTasksLimitChange
     }
   }
 }

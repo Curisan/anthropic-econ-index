@@ -16,7 +16,12 @@
     "nonZeroTasksAverage": "职业非零任务占比",
     "percentageNonZero": "非零任务占比",
     "nonZeroTasksRanking": "职业非零任务占比排名",
-    "nonZeroTasksPercentage": "非零任务占比"
+    "nonZeroTasksPercentage": "非零任务占比",
+    "topTasks": "对话占比最高任务",
+    "statsError": "获取职业统计数据失败",
+    "nonZeroTasksError": "获取职业任务非零占比统计数据失败",
+    "topTasksError": "获取对话占比最高任务失败",
+    "dataError": "获取任务分布失败"
   },
   "common": {
     "search": "搜索",

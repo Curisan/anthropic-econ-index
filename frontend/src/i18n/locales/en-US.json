@@ -16,7 +16,12 @@
     "nonZeroTasksAverage": "Occupation Non-Zero Tasks",
     "percentageNonZero": "Non-Zero Tasks Percentage",
     "nonZeroTasksRanking": "Occupation Non-Zero Tasks Ranking",
-    "nonZeroTasksPercentage": "Non-Zero Tasks Percentage"
+    "nonZeroTasksPercentage": "Non-Zero Tasks Percentage",
+    "topTasks": "Top Tasks by Dialogue Percentage",
+    "statsError": "Failed to fetch occupation statistics",
+    "nonZeroTasksError": "Failed to fetch non-zero tasks statistics",
+    "topTasksError": "Failed to fetch top tasks",
+    "dataError": "Failed to fetch task distribution"
   },
   "common": {
     "search": "Search",

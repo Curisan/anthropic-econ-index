@@ -73,6 +73,12 @@ export const occupationApi = {
     return api.get('/occupation/stats', {
       params: { type, limit }
     })
+  },
+
+  getTopTasks(limit = 20) {
+    return api.get('/tasks/top', {
+      params: { limit }
+    })
   }
 }
 

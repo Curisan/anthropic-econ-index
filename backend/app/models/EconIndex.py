@@ -345,3 +345,49 @@ def update_occupation_stats():
     except Exception as e:
         logger.error(f"更新职业统计数据失败: {str(e)}", exc_info=True)
         return False
+
+@timer
+@db_session
+def get_top_tasks_by_percentage(limit: int = 10) -> list:
+    """
+    获取所有职业中对话占比最高的任务,去除重复的任务
+    
+    参数:
+        limit: 返回的任务数量
+        
+    返回:
+        按对话占比排序的任务列表,相同任务只保留占比最高的一条
+    """
+    try:
+        # 获取所有任务并按百分比排序
+        all_tasks = select(e for e in EconIndex).order_by(lambda e: desc(e.percentage))
+        
+        # 用于去重的集合
+        seen_tasks = {}
+        result = []
+        
+        # 遍历并去重
+        for task in all_tasks:
+            task_key = task.task
+            
+            if task_key not in seen_tasks:
+                seen_tasks[task_key] = 1
+                task_dict = {
+                    "task": task.task,
+                    "task_cn": task.task_cn,
+                    "occupation": task.title,
+                    "occupation_cn": task.title_cn,
+                    "percentage": task.percentage,
+                    "automated_score": task.automated_score,
+                    "automated_score_reason": task.automated_score_reason
+                }
+                result.append(task_dict)
+                
+                # 达到限制数量后退出
+                if len(result) >= limit:
+                    break
+            
+        return result
+    except Exception as e:
+        logger.error(f"获取对话占比最高任务失败: {str(e)}", exc_info=True)
+        return []
