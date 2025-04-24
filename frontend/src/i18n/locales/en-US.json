@@ -12,7 +12,16 @@
     "searchPlaceholder": "Enter keyword to search occupations...",
     "noResults": "No matching occupations found",
     "backToHome": "Back to Home",
-    "minSearchLength": "Non-Chinese search requires at least 2 characters"
+    "minSearchLength": "Non-Chinese search requires at least 2 characters",
+    "nonZeroTasksAverage": "Occupation Non-Zero Tasks",
+    "percentageNonZero": "Non-Zero Tasks Percentage",
+    "nonZeroTasksRanking": "Occupation Non-Zero Tasks Ranking",
+    "nonZeroTasksPercentage": "Non-Zero Tasks Percentage",
+    "topTasks": "Top Tasks by Dialogue Percentage",
+    "statsError": "Failed to fetch occupation statistics",
+    "nonZeroTasksError": "Failed to fetch non-zero tasks statistics",
+    "topTasksError": "Failed to fetch top tasks",
+    "dataError": "Failed to fetch task distribution"
   },
   "common": {
     "search": "Search",

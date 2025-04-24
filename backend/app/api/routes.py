@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pony.orm import db_session
 
 from app.models.database import is_db_initialized
-from app.models.EconIndex import EconIndex, EconIndexStats, get_title_percentage, search_titles_by_keyword, record_occupation_search, get_popular_occupation_searches, add_feedback, get_feedbacks, occupation_stats
+from app.models.EconIndex import EconIndex, EconIndexStats, get_title_percentage, search_titles_by_keyword, record_occupation_search, get_popular_occupation_searches, add_feedback, get_feedbacks, occupation_stats, get_top_tasks_by_percentage
 from app.utils.request_utils import generate_request_id
 
 # 获取日志记录器
@@ -270,4 +270,25 @@ async def get_occupation_stats(type: str = "percentage_sum", limit: int = 20, db
         return {"stats": stats}
     except Exception as e:
         logger.error(f"获取职业统计数据失败: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"获取职业统计数据失败: {str(e)}") 
+        raise HTTPException(status_code=500, detail=f"获取职业统计数据失败: {str(e)}")
+
+@router.get("/tasks/top")
+async def get_top_tasks(limit: int = 10, db: None = Depends(get_db)):
+    """
+    获取对话占比最高的任务
+    
+    参数:
+        limit: 返回的任务数量，默认10个
+        
+    返回:
+        按对话占比排序的任务列表，包含任务描述、所属职业、占比等信息
+    """
+    logger.info(f"获取对话占比最高的任务，数量: {limit}")
+    
+    try:
+        tasks = get_top_tasks_by_percentage(limit)
+        logger.info(f"获取对话占比最高任务成功: {len(tasks)} 个任务")
+        return {"tasks": tasks}
+    except Exception as e:
+        logger.error(f"获取对话占比最高任务失败: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"获取对话占比最高任务失败: {str(e)}") 

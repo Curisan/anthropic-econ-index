@@ -69,8 +69,14 @@ export const occupationApi = {
   },
 
   // 获取职业统计数据
-  getStats(limit = 20) {
+  getStats(type = "percentage_sum", limit = 20) {
     return api.get('/occupation/stats', {
+      params: { type, limit }
+    })
+  },
+
+  getTopTasks(limit = 20) {
+    return api.get('/tasks/top', {
       params: { limit }
     })
   }
