@@ -360,10 +360,8 @@ def get_top_tasks_by_percentage(limit: int = 10) -> list:
     """
     try:
         # 获取前limit个独特任务并按百分比排序
-        # 使用group by和max来获取每个task的最大percentage记录
-        all_tasks = select((
-            e.task, e.task_cn, e.title, e.title_cn, e.percentage, e.automated_score, e.automated_score_reason
-        ) for e in EconIndex).group_by(lambda t, tc, ti, tic, p, a, ar: t).order_by(lambda t, tc, ti, tic, p, a, ar: desc(p)).limit(limit)
+        all_tasks = select((e.task, e.task_cn, e.title, e.title_cn, e.percentage, e.automated_score, e.automated_score_reason) 
+                          for e in EconIndex).distinct().order_by(lambda t, tc, ti, tic, p, a, ar: desc(p)).limit(limit)
         
         result = []
 
