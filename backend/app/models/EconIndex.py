@@ -359,33 +359,26 @@ def get_top_tasks_by_percentage(limit: int = 10) -> list:
         按对话占比排序的任务列表,相同任务只保留占比最高的一条
     """
     try:
-        # 获取所有任务并按百分比排序
-        all_tasks = select(e for e in EconIndex).order_by(lambda e: desc(e.percentage))
+        # 获取前limit个独特任务并按百分比排序
+        # 使用group by和max来获取每个task的最大percentage记录
+        all_tasks = select((
+            e.task, e.task_cn, e.title, e.title_cn, e.percentage, e.automated_score, e.automated_score_reason
+        ) for e in EconIndex).group_by(lambda t, tc, ti, tic, p, a, ar: t).order_by(lambda t, tc, ti, tic, p, a, ar: desc(p)).limit(limit)
         
-        # 用于去重的集合
-        seen_tasks = {}
         result = []
-        
+
         # 遍历并去重
         for task in all_tasks:
-            task_key = task.task
-            
-            if task_key not in seen_tasks:
-                seen_tasks[task_key] = 1
-                task_dict = {
-                    "task": task.task,
-                    "task_cn": task.task_cn,
-                    "occupation": task.title,
-                    "occupation_cn": task.title_cn,
-                    "percentage": task.percentage,
-                    "automated_score": task.automated_score,
-                    "automated_score_reason": task.automated_score_reason
-                }
-                result.append(task_dict)
-                
-                # 达到限制数量后退出
-                if len(result) >= limit:
-                    break
+            task_dict = {
+                "task": task[0],  # task
+                "task_cn": task[1],  # task_cn
+                "occupation": task[2],  # title
+                "occupation_cn": task[3],  # title_cn
+                "percentage": task[4],  # percentage
+                "automated_score": task[5],  # automated_score
+                "automated_score_reason": task[6]  # automated_score_reason
+            }
+            result.append(task_dict)
             
         return result
     except Exception as e:
